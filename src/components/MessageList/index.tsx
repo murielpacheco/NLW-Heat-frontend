@@ -3,6 +3,8 @@ import {api} from '../../services/api'
 import logoImg from '../../assets/logo.svg'
 import { useEffect, useState } from 'react'
 
+import io from 'socket.io-client'
+
 type Message = { 
   id: string,
   text: string,
@@ -12,8 +14,28 @@ type Message = {
   }
 }
 
+const messagesQueue: Message[] = [];
+
+const socket = io('http://localhost:4000')
+socket.on('new_message', (newMessage: Message) => {
+  messagesQueue.push(newMessage)
+})
 export function MessageList() {
   const [messages, setMessages] = useState<Message[]>([])
+
+  useEffect(() => {
+   setInterval(() => {
+      if (messagesQueue.length > 0) {
+        setMessages(prevState => [
+          messagesQueue[0],
+          prevState[0],
+          prevState[1],
+        ].filter(Boolean))
+
+        messagesQueue.shift()
+      }
+    }, 1500)
+  })
 
   useEffect(() => {
     api.get<Message[]>('messages/last3').then( response => {
@@ -27,7 +49,6 @@ export function MessageList() {
       <img src={logoImg} alt="Do While 2021"/>
 
       <ul className={styles.messageList}>
-
         {messages.map(message => {
           return (
             <li key={message.id} className={styles.message}>
@@ -41,6 +62,7 @@ export function MessageList() {
           </li>
           ) 
         })}
+
 
       </ul>
     </div>
