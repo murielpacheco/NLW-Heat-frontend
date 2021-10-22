@@ -14,6 +14,8 @@ export function LoginBox() {
          <VscGithubInverted size="22"/>
          Entrar com Githubb
        </a>
+
+       <span className={styles.developedBy}>Desenvolvido por <a href="https://github.com/murielpacheco">Muriel Pacheco</a> | NLW Heat</span>
     </div>
   )
 }
